@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Aventures · Cyril en voyage</title>
+<meta name="description" content="De la Loire en kayak aux sentiers de montagne.">
+<meta name="theme-color" content="#17140f">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%2317140f'/><path d='M16 4v24' stroke='%23f6b72b' stroke-width='3' stroke-dasharray='4 4'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@500..900&family=Overpass:ital,wght@0,400..800;1,400..600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="scrollcraft.css">
+<link rel="stylesheet" href="site.css">
+</head>
+<body class="inner-page">
+<a class="skip" href="#contenu">Aller au contenu</a>
+<div class="sc-grain" aria-hidden="true"></div>
+<header class="site-header">
+  <a class="site-home" href="index.html" aria-label="Home · Retour à l’accueil">
+    <img src="assets/logo-cev.png" width="677" height="369" alt="">
+    <span>Home</span>
+  </a>
+  <nav class="site-nav" aria-label="Navigation principale">
+    <a href="voyages.html">Voyages</a>
+    <a href="aventures.html" aria-current="page">Aventures</a>
+    <a href="projet.html">Projet</a>
+    <a href="qui-suis-je.html">Qui suis-je ?</a>
+    <a href="me-suivre.html">Me suivre</a>
+    <a class="contact-trigger" href="mailto:contact@cyrilenvoyage.com">Contact</a>
+  </nav>
+</header>
+<main id="contenu">
+  <section class="page-hero" aria-labelledby="page-title">
+    <img class="page-hero__img" src="assets/loire-kayak.jpg" alt="" fetchpriority="high">
+    <div class="page-hero__copy">
+      <h1 id="page-title" class="t-display t-display--xl">Aventures</h1>
+      <p class="t-body">De la Loire en kayak aux sentiers de montagne.</p>
+    </div>
+  </section>
+  <section class="aventures" aria-labelledby="recits-title">
+    <div class="aventures__wrap">
+      <h2 id="recits-title" class="t-display t-display--lg">Le carnet d’aventures</h2>
+      <div class="aventures__list">
+        <article class="aventure" id="loire" aria-labelledby="loire-title">
+          <img class="aventure__img" src="assets/loire-kayak.jpg" width="1536" height="1024" alt="Un kayak sur la Loire, entre les bancs de sable et les berges dans la brume." loading="lazy">
+          <div class="aventure__caption">
+            <h3 class="aventure__title" id="loire-title">La Loire en kayak</h3>
+            <p>Le courant donne le rythme. D’un banc de sable à l’autre, on redécouvre le fleuve à hauteur d’eau.</p>
+          </div>
+        </article>
+        <article class="aventure" id="rando" aria-labelledby="rando-title">
+          <img class="aventure__img" src="assets/rando-montagne.jpg" width="1536" height="1024" alt="Une silhouette marche sur un sentier de montagne au-dessus des nuages." loading="lazy">
+          <div class="aventure__caption">
+            <h3 class="aventure__title" id="rando-title">24 h de rando</h3>
+            <p>Une journée entière pour marcher et voir la lumière changer sur les crêtes.</p>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+</main>
+<footer class="page-foot"><a href="index.html">← Retour à l’accueil</a><span>Cyril en voyage</span></footer>
+<script src="contact.js" defer></script>
+</body>
+</html>

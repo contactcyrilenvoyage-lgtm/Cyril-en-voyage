@@ -1,9 +1,4 @@
-/* Cyril en voyage · page-local behaviour. The engine stays untouched.
-   1. La route : a winding road drawn down the left margin of the whole page.
-   2. La moto : rides that road under the reader's scroll, then leaves the
-      margin and drives into the Andes photograph (the peak).
-   3. Le tableau de bord : odometer of the reader's own scroll, passport stamps.
-   4. La carte : hover / tap a country to read it, click to open its chapter. */
+/* Cyril en voyage · la route, la moto et la carte. */
 (function () {
   'use strict';
   var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -16,14 +11,12 @@
   var pFuture = document.getElementById('routeFuture');
   var traceRect = document.getElementById('traceRect');
   var moto = document.getElementById('moto');
-  var odo = document.getElementById('odo');
-  var andes = document.getElementById('amerique-du-sud');
-  var stamps = [].slice.call(document.querySelectorAll('[data-stamp]'));
-  var chapters = [].slice.call(document.querySelectorAll('section[data-chapter]'));
+  var nextAdventure = document.getElementById('prochaine-aventure');
+  var backToTop = document.querySelector('.back-to-top');
 
   var W = 84, H = 0, VH = innerHeight, VW = innerWidth, breakY = 0;
   var MOTO_AT = 0.62;                       // the moto rides at 62% of the viewport
-  var DEPART_FROM = 0.1, DEPART_TO = 0.62;  // andes act progress window
+  var DEPART_FROM = 0.1, DEPART_TO = 0.62;  // next adventure progress window
 
   function roadX(y) {
     var c = W / 2, a = W * 0.27;
@@ -42,8 +35,8 @@
   }
 
   function departScrollY() {
-    var top = andes.getBoundingClientRect().top + scrollY;
-    return top + DEPART_FROM * (andes.offsetHeight - VH);
+    var top = nextAdventure.getBoundingClientRect().top + scrollY;
+    return top + DEPART_FROM * (nextAdventure.offsetHeight - VH);
   }
 
   function build() {
@@ -67,37 +60,24 @@
   function clamp(v, a, b) { return v < a ? a : v > b ? b : v; }
   function ease(t) { return t * t * (3 - 2 * t); }
 
-  var stamped = {};
   function frame() {
-    var y = scrollY;
-    // odometer: the reader's own scroll, 1 km per 4 px. Honest and labelled.
-    odo.textContent = String(Math.round(y / 4)).padStart(5, '0');
-
-    // stamps accumulate as chapters are reached
-    for (var i = 0; i < chapters.length; i++) {
-      var id = chapters[i].getAttribute('data-chapter');
-      if (!stamped[id] && chapters[i].getBoundingClientRect().top < VH * 0.55) {
-        stamped[id] = true;
-        var s = document.querySelector('[data-stamp="' + id + '"]');
-        if (s) s.classList.add('is-stamped');
-      }
-    }
+    backToTop.hidden = scrollY < VH * 0.65;
     if (reduce) return;
 
-    var docY = y + VH * MOTO_AT;
+    var docY = scrollY + VH * MOTO_AT;
     traceRect.setAttribute('height', Math.min(docY, breakY));
 
     var mx = roadX(Math.min(docY, breakY)), my = VH * MOTO_AT;
     var rot = -Math.atan(roadSlope(docY)) * 180 / Math.PI;
     var sc = 1, op = 1;
 
-    var r = andes.getBoundingClientRect();
-    var p = clamp(-r.top / (andes.offsetHeight - VH), 0, 1);
+    var r = nextAdventure.getBoundingClientRect();
+    var p = clamp(-r.top / Math.max(1, nextAdventure.offsetHeight - VH), 0, 1);
     if (r.top < VH && r.bottom > 0 || p >= 1) {
       var t = ease(clamp((p - DEPART_FROM) / (DEPART_TO - DEPART_FROM), 0, 1));
       if (r.bottom <= 0) t = 1;
       if (t > 0) {
-        var st = getComputedStyle(andes);
+        var st = getComputedStyle(nextAdventure);
         var vx = (parseFloat(st.getPropertyValue('--vp-x')) || 60) / 100 * VW;
         var vy = (parseFloat(st.getPropertyValue('--vp-y')) || 45) / 100 * VH;
         var x0 = roadX(breakY), y0 = VH * MOTO_AT;
@@ -130,34 +110,35 @@
   if (document.fonts) document.fonts.ready.then(build);
   build();
 
-  // ---------------------------------------------------------------- carte
-  var info = {
-    usa: ['États-Unis', 'Plusieurs road trips. Désert, côte, et diners au bord de la route.'],
-    bresil: ['Brésil', 'Road trip. Dunes blanches, lagunes, rues en couleurs.'],
-    thailande: ['Thaïlande', 'Road trip. Rizières, autels de bord de route, marchés de nuit.'],
-    'amerique-du-sud': ['Amérique du Sud', 'Toute l’Amérique du Sud à moto. En préparation, tracé indicatif.']
-  };
-  var card = document.getElementById('mapCard');
   var map = document.querySelector('.carte__map');
-  function show(id) {
-    if (!info[id] || !card) return;
-    card.innerHTML = '<p class="carte__card-name">' + info[id][0] + '</p><p class="carte__card-note">' + info[id][1] +
-      ' <a href="#' + id + '">Ouvrir le chapitre</a></p>';
-    [].forEach.call(map.querySelectorAll('.land'), function (l) { l.classList.toggle('is-hot', l.getAttribute('data-chapter') === id); });
-  }
-  function go(id) { var el = document.getElementById(id); if (el) el.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth' }); }
-  if (map) {
-    map.addEventListener('pointerover', function (e) { var t = e.target.closest('[data-chapter]'); if (t) show(t.getAttribute('data-chapter')); });
-    map.addEventListener('focusin', function (e) { var t = e.target.closest('[data-chapter]'); if (t) show(t.getAttribute('data-chapter')); });
-    map.addEventListener('click', function (e) {
-      var t = e.target.closest('[data-chapter]'); if (!t) return;
-      var id = t.getAttribute('data-chapter');
-      // first tap on touch reads the card, second opens the chapter
-      if (e.pointerType === 'touch' && card.dataset.last !== id) { card.dataset.last = id; show(id); return; }
-      e.preventDefault(); go(id);
+  var card = document.getElementById('mapCard');
+  var destinations = {
+    usa: ['États-Unis', 'Le désert, la côte et les diners au bord de la route.'],
+    bresil: ['Brésil', 'Des dunes blanches et des rues en couleurs.'],
+    thailande: ['Thaïlande', 'Des rizières dans la brume et des marchés de nuit.']
+  };
+
+  function showDestination(event) {
+    var target = event.target.closest('[data-chapter]');
+    if (!target) return;
+    var id = target.getAttribute('data-chapter');
+    var destination = destinations[id];
+    if (!destination) return;
+
+    var pin = map.querySelector('.pin[data-chapter="' + id + '"]');
+    var link = document.createElement('a');
+    link.setAttribute('href', pin.getAttribute('href'));
+    link.textContent = 'Ouvrir le carnet';
+    card.querySelector('.carte__card-name').textContent = destination[0];
+    card.querySelector('.carte__card-note').replaceChildren(destination[1] + ' ', link);
+    map.querySelectorAll('.land[data-chapter]').forEach(function (land) {
+      land.classList.toggle('is-hot', land.getAttribute('data-chapter') === id);
     });
-    map.addEventListener('keydown', function (e) {
-      var t = e.target.closest('.pin'); if (t && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); go(t.getAttribute('data-chapter')); }
-    });
   }
+
+  map.addEventListener('pointerover', showDestination);
+  map.addEventListener('focusin', showDestination);
+  map.addEventListener('click', function (event) {
+    if (event.target.closest('.land')) showDestination(event);
+  });
 })();
